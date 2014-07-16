@@ -178,10 +178,10 @@ function bp_widget_cache_invalidate_on_user_last_activity( $meta_id, $object_id,
 		return;
 	}
 
-	$widget_classes = array(
-		//'BP_Core_Whos_Online_Widget',
+	$widget_classes = apply_filters( 'bp_widget_cache_invalidate_user_last_activity', array(
+		'BP_Core_Whos_Online_Widget',
 		'BP_Core_Recently_Active_Widget',
-	);
+	) );
 
 	foreach ( $widget_classes as $widget_class ) {
 		delete_site_transient( bp_widget_get_transient_key( $widget_class ) );
