@@ -276,7 +276,28 @@ function bp_widget_cache_invalidate_on_widget_delete() {
 		return;
 	}
 
-	delete_site_transient( bp_widget_get_transient_key( get_class( $widget_object ) ) );
+	// get widget instance from the widget's DB option
+	$instance = get_option( $widget_object->option_name );
+	$instance = ! empty( $instance[$widget_object->number] ) ? $instance[$widget_object->number] : false;
+
+	if ( false === $instance ) {
+		return;
+	}
+
+	// get transient key
+	$transient_key = bp_widget_get_transient_key( get_class( $widget_object ) );
+
+	// must get sidebar args based off the widget class
+	$args = bp_widget_get_sidebar_args_for_widget( $widget_object );
+
+	$cache = get_site_transient( $transient_key );
+	$instance_key = bp_widget_get_instance_key( $widget_object, $instance, $args );
+
+	// Remove cached content for old widget settings
+	if ( isset( $cache[$instance_key] ) ) {
+		unset( $cache[$instance_key] );
+		set_site_transient( $transient_key, $cache, bp_widget_cache_ttl( $widget_object, $instance, $args ) );
+	}
 }
 add_action( 'sidebar_admin_setup', 'bp_widget_cache_invalidate_on_widget_delete' );
 
