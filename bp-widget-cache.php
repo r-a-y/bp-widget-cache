@@ -189,16 +189,23 @@ function bp_widget_cache_invalidate_on_user_last_activity( $meta_id, $object_id,
 }
 
 /**
- * Invalidate various BuddyPress widgets when an activity item is saved.
+ * Invalidate various BuddyPress widgets by activity object.
+ *
+ * The activity component records various items from different components,
+ * which is ideal to invalidate our widget caches when an activity item is
+ * saved / deleted.
  *
  * Caveats with this approach is this requires the activity item to be
  * recorded.  Therefore, it's possible that if a plugin is blocking some items
  * from being recorded, that this approach won't work.  However, it's easy to
  * see at a glance what widget caches we're invalidating.
  *
- * @param BP_Activity_Activity $activity
+ * @param array|object $activity Activity item
  */
-function bp_widget_cache_invalidate_on_activity_save( BP_Activity_Activity $activity ) {
+function bp_widget_cache_invalidate_by_activity_object( $activity = '' ) {
+	// during deletion, $activity can be an array; force it to an object
+	$activity = (object) $activity;
+
 	switch( $activity->type ) {
 		case 'new_blog_post' :
 		case 'new_groupblog_post' :
@@ -223,7 +230,8 @@ function bp_widget_cache_invalidate_on_activity_save( BP_Activity_Activity $acti
 			break;
 	}
 }
-add_action( 'bp_activity_after_save', 'bp_widget_cache_invalidate_on_activity_save' );
+add_action( 'bp_activity_after_save', 'bp_widget_cache_invalidate_by_activity_object' );
+add_action( 'bp_activity_delete',     'bp_widget_cache_invalidate_by_activity_object' );
 
 /**
  * Invalidate the Groups widget on a group's last activity update.
