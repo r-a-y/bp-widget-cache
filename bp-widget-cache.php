@@ -262,14 +262,18 @@ add_action( 'bp_groups_delete_group', 'bp_widget_cache_invalidate_on_group_delet
  *
  * Currently, this is done when:
  *  - A theme is changed
- *  - This plugin is deactivated.
+ *  - This plugin is deactivated
+ *  - When a user is marked as a spammer / unmarked as a spammer
+ *  - When a user is deleted
  */
 function bp_widget_cache_invalidate_all() {
 	foreach( (array) bp_widget_get_cache_classes() as $widget_class ) {
 		delete_site_transient( bp_widget_get_transient_key( $widget_class ) );
 	}
 }
-add_action( 'switch_theme', 'bp_widget_cache_invalidate_all' );
+add_action( 'switch_theme',                   'bp_widget_cache_invalidate_all' );
+add_action( 'bp_core_process_spammer_status', 'bp_widget_cache_invalidate_all' );
+add_action( 'bp_core_deleted_account',        'bp_widget_cache_invalidate_all' );
 
 /**
  * Invalidate widget cache when a widget is deleted.
