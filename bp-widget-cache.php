@@ -118,11 +118,11 @@ add_filter( 'widget_update_callback', 'bp_widget_cache_update_settings', 10, 4 )
  * Helper function to invalidate all member widget caches.
  */
 function bp_widget_cache_invalidate_member_widgets() {
-	$widget_classes = array(
+	$widget_classes = apply_filters( 'bp_widget_cache_invalidate_member_widgets', array(
 		'BP_Core_Members_Widget',
 		'BP_Core_Whos_Online_Widget',
 		'BP_Core_Recently_Active_Widget',
-	);
+	) );
 
 	foreach ( $widget_classes as $widget_class ) {
 		delete_site_transient( bp_widget_get_transient_key( $widget_class ) );
