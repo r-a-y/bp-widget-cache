@@ -240,6 +240,16 @@ function bp_widget_cache_invalidate_on_group_last_activity( $meta_id, $object_id
 add_action( 'update_group_meta', 'bp_widget_cache_invalidate_on_group_last_activity', 10, 3 );
 
 /**
+ * Invalidate the Groups widget when a group is deleted.
+ *
+ * @param BP_Groups_Group $group The group object
+ */
+function bp_widget_cache_invalidate_on_group_delete( $group ) {
+	delete_site_transient( bp_widget_get_transient_key( 'BP_Groups_Widget' ) );
+}
+add_action( 'bp_groups_delete_group', 'bp_widget_cache_invalidate_on_group_delete' );
+
+/**
  * Clears all BP widget caches.
  *
  * Currently, this is done when:
