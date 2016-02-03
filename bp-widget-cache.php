@@ -55,7 +55,44 @@ function bp_widget_cache_display( $instance, $widget_object, $args ) {
 
 	// If SSL is in effect, replace all HTTP instances with HTTPS
 	if ( is_ssl() ) {
-		$cache[$instance_key] = str_replace( 'http:', 'https:', $cache[$instance_key] );
+		$host = parse_url( get_home_url( bp_get_root_blog_id() ), PHP_URL_HOST );
+
+		if ( is_multisite() && is_subdomain_install() ) {
+			$find = $replace = array();
+
+			// Get HTTP matches for all resources linked to the internal network only.
+			// Currently 'src' and 'data-src'.
+			preg_match_all( '/(data\-src=|src=)"(http:)(\/\/(?:.+\.)?' . preg_quote( $host ) . ').+?"/', $cache[$instance_key], $matches, PREG_SET_ORDER );
+
+			// De-duplication!
+			foreach( $matches as $match ) {
+				$key = $match[1] . '"' . $match[2] . $match[3];
+
+				if ( ! isset( $find[$key] ) ) {
+					$find[$key] = 1;
+				}
+			}
+
+			foreach( $find as $k => $v ) {
+				$replace[] = str_replace( 'http:', 'https:', $k );
+			}
+
+			$find = array_keys( $find );
+
+		} else {
+			$find = array(
+				'src="http://' . $host,
+				'data-src="http://' . $host,
+			);
+
+			$replace = array(
+				'src="https://' . $host,
+				'data-src="https://' . $host,
+			);
+		}
+
+		// Switch resources over to HTTPS.
+		$cache[$instance_key] = str_replace( $find, $replace, $cache[$instance_key] );
 	}
 
 	// output the content
