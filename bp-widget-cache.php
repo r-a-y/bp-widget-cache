@@ -284,7 +284,9 @@ add_action( 'bp_activity_delete',     'bp_widget_cache_invalidate_by_activity_ob
  */
 function bp_widget_cache_invalidate_on_group_last_activity( $meta_id, $object_id, $meta_key ) {
 	if ( 'last_activity' === $meta_key ) {
+		remove_filter( 'query', 'bp_filter_metaid_column_name' );
 		delete_site_transient( bp_widget_get_transient_key( 'BP_Groups_Widget' ) );
+		add_filter( 'query', 'bp_filter_metaid_column_name' );
 	}
 }
 add_action( 'update_group_meta', 'bp_widget_cache_invalidate_on_group_last_activity', 10, 3 );
