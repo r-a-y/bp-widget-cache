@@ -173,53 +173,9 @@ function bp_widget_cache_invalidate_member_widgets() {
 //add_action( 'bp_core_activated_user', 'bp_widget_cache_invalidate_member_widgets' );
 
 /**
- * Add hook to invalidate recently active widget cache.
- *
- * Note: This relies on mirroring the last activity to user meta.  If BP
- * removes this in a future release, we'll need a new hook in
- * {@link bp_update_user_last_activity()}.
- *
- * @see bp_widget_cache_invalidate_on_user_last_activity()
+ * Invalidate some member widgets during an update of a user's last activity.
  */
-function bp_widget_cache_add_wp_head_hook() {
-	if ( ! is_user_logged_in() ) {
-		return;
-	}
-
-	add_action( 'update_user_meta', 'bp_widget_cache_invalidate_on_user_last_activity', 10, 3 );
-}
-add_action( 'wp_head', 'bp_widget_cache_add_wp_head_hook', 9 );
-
-/**
- * Remove hook to invalidate recently active widget cache.
- *
- * Note: This relies on mirroring the last activity to user meta.  If BP
- * removes this in a future release, we'll need a new hook in
- * {@link bp_update_user_last_activity()}.
- *
- * @see bp_widget_cache_invalidate_on_user_last_activity()
- */
-function bp_widget_cache_remove_wp_head_hook() {
-	if ( ! is_user_logged_in() ) {
-		return;
-	}
-
-	remove_action( 'update_user_meta', 'bp_widget_cache_invalidate_on_user_last_activity', 10, 3 );
-}
-add_action( 'wp_head', 'bp_widget_cache_remove_wp_head_hook', 20 );
-
-/**
- * Invalidate the Recently Active member widget on a user's last activity.
- *
- * @param int $meta_id The meta ID
- * @param int $object_id The object ID
- * @param string $meta_key The meta key
- */
-function bp_widget_cache_invalidate_on_user_last_activity( $meta_id, $object_id, $meta_key ) {
-	if ( 'last_activity' !== $meta_key ) {
-		return;
-	}
-
+function bp_widget_cache_invalidate_on_user_last_activity() {
 	$widget_classes = apply_filters( 'bp_widget_cache_invalidate_user_last_activity', array(
 		'BP_Core_Whos_Online_Widget',
 		'BP_Core_Recently_Active_Widget',
@@ -229,6 +185,7 @@ function bp_widget_cache_invalidate_on_user_last_activity( $meta_id, $object_id,
 		delete_site_transient( bp_widget_get_transient_key( $widget_class ) );
 	}
 }
+add_action( 'bp_core_user_updated_last_activity', 'bp_widget_cache_invalidate_on_user_last_activity' );
 
 /**
  * Invalidate various BuddyPress widgets by activity object.
